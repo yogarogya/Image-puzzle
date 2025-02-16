@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Puzzle Game (5x5)</title>
+    <title>Image Puzzle Game</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,17 +17,13 @@
         }
         .box {
             display: grid;
-            grid-template-columns: repeat(5, 60px);
-            grid-template-rows: repeat(5, 60px);
             gap: 2px;
-            width: 310px;
-            height: 310px;
             border: 2px solid black;
             padding: 5px;
+            width: 310px;
+            height: 310px;
         }
         .piece {
-            width: 60px;
-            height: 60px;
             border: 1px solid black;
             background-size: 300px 300px;
             cursor: pointer;
@@ -40,13 +35,33 @@
             font-size: 20px;
             font-weight: bold;
         }
+        .btn {
+            padding: 10px 15px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
-    <h1>Image Puzzle Game (5x5)</h1>
-    <button onclick="startGame()">START</button>
-    <button onclick="stopStopwatch()">Stop</button>
+    <h1>Image Puzzle Game</h1>
+    <button class="btn" onclick="startGame()">START</button>
+    <button class="btn" onclick="stopStopwatch()">STOP</button>
+
+    <br>
+    <button class="btn" onclick="changeGridSize(3)">3x3</button>
+    <button class="btn" onclick="changeGridSize(4)">4x4</button>
+    <button class="btn" onclick="changeGridSize(5)">5x5</button>
+
     <div id="stopwatch">Time: 0s</div>
+    
     <div id="game-container">
         <div id="box1" class="box"></div>
         <div id="box2" class="box"></div>
@@ -56,52 +71,73 @@
         let imagePieces = [];
         let time = 0;
         let timer;
+        let gridSize = 5; // Default is 5x5 (25 pieces)
         let box1 = [];
         let box2 = [];
         const cloudinaryImageURL = "https://res.cloudinary.com/dsqorpgf2/image/upload/v1739708413/Copy_of_IMG_20150623_114218_inth7g.jpg";
 
-
         function startGame() {
             const img = new Image();
+            img.crossOrigin = "anonymous"; 
             img.src = cloudinaryImageURL;
             img.onload = function() {
                 splitImage(img);
                 startStopwatch();
             };
         }
-        
+
+        function changeGridSize(size) {
+            if (size === 3) {
+                let password = prompt("Enter password to change to 3x3:");
+                if (password !== "12rrmm") {
+                    alert("Incorrect password!");
+                    return;
+                }
+            }
+            gridSize = size;
+            startGame();
+        }
+
         function splitImage(img) {
             const box1Div = document.getElementById("box1");
             const box2Div = document.getElementById("box2");
+
+            box1Div.style.gridTemplateColumns = `repeat(${gridSize}, ${300 / gridSize}px)`;
+            box1Div.style.gridTemplateRows = `repeat(${gridSize}, ${300 / gridSize}px)`;
+            box2Div.style.gridTemplateColumns = `repeat(${gridSize}, ${300 / gridSize}px)`;
+            box2Div.style.gridTemplateRows = `repeat(${gridSize}, ${300 / gridSize}px)`;
+
             box1Div.innerHTML = "";
             box2Div.innerHTML = "";
             imagePieces = [];
             box1 = [];
             box2 = [];
-            
-            for (let y = 0; y < 5; y++) {
-                for (let x = 0; x < 5; x++) {
+
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
                     const piece = document.createElement("div");
                     piece.classList.add("piece");
+                    piece.style.width = `${300 / gridSize}px`;
+                    piece.style.height = `${300 / gridSize}px`;
                     piece.style.backgroundImage = `url(${img.src})`;
-                    piece.style.backgroundPosition = `-${x * 60}px -${y * 60}px`;
+                    piece.style.backgroundPosition = `-${x * (300 / gridSize)}px -${y * (300 / gridSize)}px`;
                     piece.addEventListener("click", () => movePiece(piece));
                     imagePieces.push(piece);
                 }
             }
-            
+
             shuffle(imagePieces);
-            box1 = imagePieces.slice(0, 25);
+            box1 = imagePieces.slice(0, gridSize * gridSize);
             updateBoard();
         }
-        
+
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 let j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
             }
         }
-        
+
         function movePiece(piece) {
             if (box1.includes(piece)) {
                 box1 = box1.filter(p => p !== piece);
@@ -112,7 +148,7 @@
             }
             updateBoard();
         }
-        
+
         function updateBoard() {
             const box1Div = document.getElementById("box1");
             const box2Div = document.getElementById("box2");
@@ -121,7 +157,7 @@
             box1.forEach(piece => box1Div.appendChild(piece));
             box2.forEach(piece => box2Div.appendChild(piece));
         }
-        
+
         function startStopwatch() {
             clearInterval(timer);
             time = 0;
