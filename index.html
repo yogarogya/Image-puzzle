@@ -44,7 +44,7 @@ body{
 .sub{text-align:center;font-size:.98rem;font-weight:700;color:#5a3b1e;margin-bottom:14px;opacity:.9}
 .card{background:var(--cream);border:3px solid var(--wood);border-radius:18px;padding:14px;
   margin-bottom:12px;box-shadow:0 6px 0 rgba(139,90,43,.35)}
-.card>label{display:block;font-weight:900;font-size:1rem;margin-bottom:10px;color:#7a3d00}
+.card>label,.cardTitle{display:block;font-weight:900;font-size:1rem;margin-bottom:10px;color:#7a3d00}
 .chipRow{display:flex;flex-wrap:wrap;gap:8px}
 .chip{font:inherit;font-weight:900;font-size:1rem;padding:10px 16px;border-radius:12px;cursor:pointer;
   border:3px solid #d9c4a5;background:#fff;color:#7a5c3a;transition:.15s;min-width:52px;touch-action:manipulation}
@@ -52,11 +52,13 @@ body{
 .chip.active{background:linear-gradient(180deg,#ffd15c,#f5a623);border-color:#c47d00;color:#5a3300;
   box-shadow:0 4px 0 #c47d00}
 .nameRow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.nameRow .nemoji{width:40px;height:40px;flex:0 0 40px;border-radius:50%;display:grid;place-items:center;
-  font-size:1.25rem;box-shadow:0 3px 0 rgba(0,0,0,.2)}
+.nameRow .nemoji{width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;
+  font-size:1.3rem;box-shadow:0 3px 0 rgba(0,0,0,.2)}
+.nameRow .nlabel{font-weight:900;font-size:.82rem;color:#8a6a48;flex:0 0 56px}
 .nameRow input{flex:1;font:inherit;font-weight:700;font-size:1rem;padding:11px 14px;border-radius:12px;
   border:2.5px solid #d9c4a5;background:#fff;color:var(--ink);outline:none;min-width:0}
 .nameRow input:focus{border-color:#f5a623;box-shadow:0 0 0 4px rgba(245,166,35,.18)}
+.nameHint{font-size:.82rem;font-weight:700;color:#8a6a48;margin-top:2px;margin-bottom:8px}
 .toggles{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:4px 0 14px}
 .toggles label{display:flex;align-items:center;gap:7px;font-weight:800;background:rgba(255,255,255,.7);
   padding:9px 15px;border-radius:99px;border:2.5px solid rgba(139,90,43,.35);cursor:pointer;font-size:.95rem}
@@ -70,6 +72,11 @@ body{
 .helpBox{background:rgba(255,255,255,.72);border:2.5px dashed #b99a6b;border-radius:16px;padding:12px 14px;
   font-size:.92rem;line-height:1.85;font-weight:600;color:#5a3b1e;margin-bottom:14px}
 .helpBox b{color:#b85c00}
+.testRow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:6px}
+.testBtn{font:inherit;font-weight:900;font-size:.9rem;padding:9px 14px;border-radius:11px;cursor:pointer;
+  border:2.5px solid #2196c9;background:#e3f4fd;color:#136b91;transition:.15s;touch-action:manipulation}
+.testBtn:hover{background:#d0ecfa}
+.statusBar{font-size:.85rem;font-weight:800;text-align:center;color:#5a3b1e;margin-top:8px;min-height:1.2em}
 
 /* ---------- GAME HUD ---------- */
 .hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;
@@ -174,8 +181,6 @@ body{
 .actionRow .bigBtn{flex:1;min-width:150px;font-size:1.15rem;padding:16px}
 .bigBtn.alt{background:linear-gradient(180deg,#63c8f0,#2196c9);box-shadow:0 7px 0 #136b91}
 .bigBtn.alt:active{box-shadow:0 2px 0 #136b91}
-.bigBtn.grey{background:linear-gradient(180deg,#b8b8b8,#8a8a8a);box-shadow:0 7px 0 #5f5f5f}
-.bigBtn.grey:active{box-shadow:0 2px 0 #5f5f5f}
 @media(max-width:420px){
   .playersGrid{grid-template-columns:repeat(2,1fr);gap:8px}
   .pbtn{font-size:.92rem;padding:13px 5px}
@@ -215,7 +220,8 @@ body{
   </div>
 
   <div class="card">
-    <label>📝 खिलाड़ियों के नाम</label>
+    <span class="cardTitle">📝 खिलाड़ियों के नाम (यहाँ टाइप करें)</span>
+    <div class="nameHint">हर खिलाड़ी के लिए उसके नाम का बॉक्स भरें — यही नाम रिज़ल्ट में दिखेगा।</div>
     <div id="nameInputs"></div>
   </div>
 
@@ -238,9 +244,17 @@ body{
     </div>
   </div>
 
-  <div class="toggles">
-    <label><input type="checkbox" id="soundToggle" checked> 🔊 साउंड इफेक्ट</label>
-    <label><input type="checkbox" id="voiceToggle" checked> 🎤 उद्घोषक आवाज़</label>
+  <div class="card">
+    <span class="cardTitle">🔊 साउंड सेटिंग</span>
+    <div class="toggles">
+      <label><input type="checkbox" id="soundToggle" checked> 🔊 साउंड इफेक्ट</label>
+      <label><input type="checkbox" id="voiceToggle" checked> 🎤 उद्घोषक आवाज़</label>
+    </div>
+    <div class="testRow">
+      <button class="testBtn" id="testSoundBtn">🔊 साउंड टेस्ट करें</button>
+      <button class="testBtn" id="testVoiceBtn">🎤 आवाज़ टेस्ट करें</button>
+    </div>
+    <div class="statusBar" id="audioStatus"></div>
   </div>
 
   <button class="bigBtn" id="startBtn">🚀 गेम शुरू करें</button>
@@ -293,10 +307,9 @@ body{
 "use strict";
 
 /* =========================================================
-   डेटा : उड़ने वाले और न उड़ने वाले जानवर
+   डेटा
    ========================================================= */
 const ANIMALS = [
-  // ---- उड़ने वाले ----
   {n:'चिड़िया',  e:'🐦', f:true},
   {n:'कबूतर',   e:'🕊️', f:true},
   {n:'तोता',    e:'🦜', f:true},
@@ -311,7 +324,6 @@ const ANIMALS = [
   {n:'मधुमक्खी', e:'🐝', f:true},
   {n:'चमगादड़', e:'🦇', f:true},
   {n:'पतंग',    e:'🪁', f:true},
-  // ---- न उड़ने वाले ----
   {n:'गाय',     e:'🐄', f:false},
   {n:'बकरी',    e:'🐐', f:false},
   {n:'कुत्ता',   e:'🐕', f:false},
@@ -360,9 +372,9 @@ const S = {
   players: [],
   ranked: [],
   round: 0,
-  phase: 'idle',          // idle | playing | evaluating | finished
-  pressed: new Set(),     // जिन्होंने इस राउंड में दबाया (सही/गलत दोनों)
-  lockedOut: null,        // जिसका बटन इस राउंड में लॉक हुआ
+  phase: 'idle',
+  pressed: new Set(),
+  lockedOut: null,
   animal: null,
   bag: [],
   lastAnimal: null,
@@ -386,29 +398,121 @@ function shuffle(a){
 }
 
 /* =========================================================
-   साउंड इंजन (Web Audio API)
+   ⭐ ऑडियो इंजन — GitHub Pages (HTTPS) के लिए मज़बूत
    ========================================================= */
 let actx = null;
+let audioUnlocked = false;
+let voicesReady = false;
+let cachedVoices = [];
+
 function audio(){
   if(!actx){
-    try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ return null; }
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return null;
+      actx = new Ctx();
+    } catch(e){ return null; }
   }
-  if(actx.state === 'suspended'){ actx.resume().catch(()=>{}); }
   return actx;
 }
+
+/* यह function पहली user gesture पर call होता है — इससे browsers audio unlock कर देते हैं */
+function unlockAudio(){
+  // --- WebAudio unlock ---
+  const c = audio();
+  if(c){
+    if(c.state === 'suspended'){ c.resume().catch(()=>{}); }
+    if(!audioUnlocked){
+      try{
+        const buf = c.createBuffer(1, 1, 22050);
+        const src = c.createBufferSource();
+        src.buffer = buf;
+        src.connect(c.destination);
+        src.start(0);
+        audioUnlocked = true;
+      }catch(e){}
+    }
+  }
+  // --- Speech unlock (silent utterance) ---
+  if('speechSynthesis' in window){
+    try{
+      const u = new SpeechSynthesisUtterance(' ');
+      u.volume = 0;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  }
+  updateAudioStatus();
+}
+
+/* voices load होने का इंतज़ार */
+function loadVoices(){
+  if(!('speechSynthesis' in window)) return;
+  try{
+    const v = window.speechSynthesis.getVoices();
+    if(v && v.length > 0){
+      cachedVoices = v;
+      voicesReady = true;
+    }
+  }catch(e){}
+}
+if('speechSynthesis' in window){
+  loadVoices();
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+  // कुछ browsers में देरी से लोड होते हैं — थोड़ी देर में फिर try करें
+  setTimeout(loadVoices, 500);
+  setTimeout(loadVoices, 1500);
+}
+
+function pickVoice(){
+  if(!cachedVoices.length) return null;
+  return cachedVoices.find(v => /hi[-_]IN/i.test(v.lang))
+      || cachedVoices.find(v => /^hi/i.test(v.lang))
+      || cachedVoices.find(v => /en[-_]IN/i.test(v.lang))
+      || cachedVoices.find(v => /female|google/i.test(v.name))
+      || cachedVoices[0];
+}
+
+function updateAudioStatus(){
+  const el = $('audioStatus');
+  if(!el) return;
+  const webAudio = !!(window.AudioContext || window.webkitAudioContext);
+  const speech = 'speechSynthesis' in window;
+  const hivoice = cachedVoices.some(v => /hi[-_]IN/i.test(v.lang));
+  let msg = '';
+  if(webAudio && audioUnlocked) msg += '✅ साउंड तैयार';
+  else if(webAudio) msg += '⏳ साउंड (टैप करने पर चालू)';
+  else msg += '⚠️ WebAudio उपलब्ध नहीं';
+  if(speech){
+    if(hivoice) msg += ' • ✅ हिन्दी आवाज़ उपलब्ध';
+    else if(cachedVoices.length) msg += ' • ⚠️ हिन्दी आवाज़ नहीं (अंग्रेज़ी में बोलेगा)';
+    else msg += ' • ⏳ आवाज़ें लोड हो रही हैं';
+  } else msg += ' • ❌ आवाज़ उपलब्ध नहीं';
+  el.textContent = msg;
+}
+
+/* पहली किसी भी click/touch/key पर audio unlock */
+['click','touchstart','keydown','pointerdown'].forEach(evt => {
+  window.addEventListener(evt, unlockAudio, {once:false, passive:true});
+});
+
+/* --- टोन बनाने वाला function --- */
 function tone(freq, dur, type, vol, delay){
   if(!S.sound) return;
   const c = audio(); if(!c) return;
+  if(c.state === 'suspended'){ c.resume().catch(()=>{}); }
   type = type || 'sine'; vol = vol == null ? 0.14 : vol; delay = delay || 0;
-  const o = c.createOscillator(), g = c.createGain();
-  o.type = type; o.frequency.setValueAtTime(freq, c.currentTime + delay);
-  o.connect(g); g.connect(c.destination);
-  const t = c.currentTime + delay;
-  g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.start(t); o.stop(t + dur + 0.03);
+  try{
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, c.currentTime + delay);
+    o.connect(g); g.connect(c.destination);
+    const t = c.currentTime + delay;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.start(t); o.stop(t + dur + 0.03);
+  }catch(e){}
 }
+
 function sfx(name){
   if(!S.sound) return;
   switch(name){
@@ -424,15 +528,18 @@ function sfx(name){
   }
 }
 
-/* =========================================================
-   आवाज़ (उद्घोषक)
-   ========================================================= */
+/* --- आवाज़ (उद्घोषक) --- */
 function speak(text){
-  if(!S.voice || !('speechSynthesis' in window)) return;
+  if(!S.voice) return;
+  if(!('speechSynthesis' in window)) return;
   try{
     window.speechSynthesis.cancel();
+    loadVoices();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'hi-IN'; u.rate = 1.02; u.pitch = 1.2; u.volume = 1;
+    u.lang = 'hi-IN';
+    u.rate = 1.0; u.pitch = 1.2; u.volume = 1;
+    const v = pickVoice();
+    if(v) u.voice = v;
     window.speechSynthesis.speak(u);
   }catch(e){}
 }
@@ -448,7 +555,7 @@ function showScreen(name){
 }
 
 /* =========================================================
-   सेटअप स्क्रीन
+   सेटअप स्क्रीन — नाम इनपुट
    ========================================================= */
 function renderNameInputs(){
   const wrap = $('nameInputs');
@@ -462,17 +569,25 @@ function renderNameInputs(){
     span.className = 'nemoji';
     span.style.background = meta.color;
     span.textContent = meta.emoji;
+    const lbl = document.createElement('span');
+    lbl.className = 'nlabel';
+    lbl.textContent = 'खिलाड़ी ' + (i+1);
     const input = document.createElement('input');
     input.type = 'text';
     input.maxLength = 14;
-    input.placeholder = 'खिलाड़ी ' + (i + 1) + ' का नाम';
-    input.value = (prev[i] && prev[i].trim()) ? prev[i] : ('खिलाड़ी ' + (i + 1));
-    row.appendChild(span); row.appendChild(input);
+    input.placeholder = 'नाम लिखें...';
+    input.value = (prev[i] && prev[i].trim()) ? prev[i] : '';
+    input.setAttribute('autocomplete','off');
+    input.setAttribute('autocorrect','off');
+    input.setAttribute('spellcheck','false');
+    row.appendChild(span);
+    row.appendChild(lbl);
+    row.appendChild(input);
     wrap.appendChild(row);
   }
 }
 
-/* चिप बटन हैंडलर */
+/* चिप बटन */
 $('playerCountBtns').addEventListener('click', e => {
   const b = e.target.closest('.chip'); if(!b) return;
   $('playerCountBtns').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
@@ -501,10 +616,27 @@ $('nameInputs').addEventListener('keydown', e => {
   if(e.key === 'Enter'){ e.preventDefault(); startGameFromSetup(); }
 });
 
+/* टेस्ट बटन */
+$('testSoundBtn').addEventListener('click', () => {
+  unlockAudio();
+  const prev = S.sound; S.sound = true;
+  sfx('correct');
+  setTimeout(() => sfx('win'), 400);
+  S.sound = prev;
+});
+$('testVoiceBtn').addEventListener('click', () => {
+  unlockAudio();
+  const prev = S.voice; S.voice = true;
+  setTimeout(() => speak('नमस्ते! चिड़िया उड़ गेम में आपका स्वागत है'), 200);
+  S.voice = prev;
+});
+
 /* =========================================================
-   गेम शुरू (सेटअप से)
+   गेम शुरू
    ========================================================= */
 function startGameFromSetup(){
+  unlockAudio();   // user gesture पर audio unlock
+
   const inputs = Array.from($('nameInputs').querySelectorAll('input'));
   S.players = [];
   for(let i = 0; i < S.playerCount; i++){
@@ -529,7 +661,6 @@ function startGameFromSetup(){
   $('speedLabel').textContent = SPEEDS[S.speed].label;
   $('answerBanner').classList.remove('show');
 
-  audio();
   showScreen('game');
   startRound();
 }
@@ -615,7 +746,6 @@ function tick(now){
     return;
   }
   updateTimerBar(left / S.timeLimit);
-
   const secLeft = Math.ceil(left / 1000);
   if(secLeft <= 3 && secLeft !== S.lastSec){
     S.lastSec = secLeft;
@@ -625,16 +755,9 @@ function tick(now){
 }
 
 /* =========================================================
-   ⭐ बटन दबाने का मुख्य लॉजिक (सुधरा हुआ)
-   
-   नियम:
-   • अगर जानवर उड़ता है (flies = true):
-       - दबाना सही है → बटन disable हो जाएगा
-       - जब तक सिर्फ 1 खिलाड़ी बचे, तब उसका बटन लॉक होकर राउंड खत्म
-   • अगर जानवर नहीं उड़ता (flies = false):
-       - दबाना गलत है → बटन DISABLE नहीं होगा (लाल रंग में दिखेगा)
-       - बाकी खिलाड़ियों का बटन भी चालू रहेगा
-       - राउंड सिर्फ टाइमर खत्म होने पर खत्म होगा
+   बटन दबाने का लॉजिक
+   • पक्षी उड़ता है → सही दबा → बटन disable, आखिरी बचा lock
+   • पक्षी नहीं उड़ता → गलत दबा → बटन ENABLED रहेगा
    ========================================================= */
 function onPress(pid){
   if(S.phase !== 'playing') return;
@@ -652,20 +775,18 @@ function onPress(pid){
   if(card){
     const btn = card.querySelector('.pbtn');
     if(flies){
-      // ✅ सही दबाया → बटन green + disable
       btn.classList.add('pressed');
       btn.textContent = '✓ दबा दिया';
       btn.disabled = true;
     } else {
-      // ❌ गलत दबाया → बटन लाल, पर ENABLED रहेगा
       btn.textContent = '✗ गलत दबाया';
       btn.classList.add('pbtn-wrong');
-      // ध्यान दें: disabled = true कभी नहीं लगाया जाएगा
+      // ध्यान दें: disabled = true कभी नहीं
     }
     card.classList.add('did-press');
   }
 
-  // ⭐ बाकी खिलाड़ियों का बटन सिर्फ तब बंद करो जब दबाना सही हो
+  // सिर्फ पक्षी उड़ता हो और सही दबाया हो तब बाकी lock करो
   if(flies){
     const remaining = S.players.filter(x => !S.pressed.has(x.id));
     if(remaining.length <= 1){
@@ -684,17 +805,14 @@ function onPress(pid){
       endRound();
     }
   }
-  // ❗ अगर नहीं उड़ता → कुछ न करें, राउंड टाइमर खत्म होने पर खत्म होगा
 }
 
-/* ग्रिड पर इवेंट डेलिगेशन (एक ही बार) */
 $('playersGrid').addEventListener('click', e => {
   const btn = e.target.closest('.pbtn');
   if(!btn) return;
   onPress(Number(btn.dataset.pid));
 });
 
-/* कीबोर्ड 1..6 */
 document.addEventListener('keydown', e => {
   if(S.phase !== 'playing') return;
   const n = parseInt(e.key, 10);
@@ -849,6 +967,7 @@ function renderResults(){
    रीमैच / नया गेम
    ========================================================= */
 function rematch(){
+  unlockAudio();
   cancelAnimationFrame(S.rafId);
   clearTimeout(S.feedbackTimer);
   S.rafId = 0; S.feedbackTimer = 0;
@@ -870,7 +989,6 @@ function rematch(){
   $('playersGrid').innerHTML = '';
   updateTimerBar(1);
 
-  audio();
   showScreen('game');
   startRound();
 }
@@ -913,7 +1031,7 @@ function newGame(){
 }
 
 /* =========================================================
-   बटन बाइंडिंग (एक ही बार)
+   बटन बाइंडिंग
    ========================================================= */
 $('startBtn').addEventListener('click', startGameFromSetup);
 $('rematchBtn').addEventListener('click', rematch);
@@ -938,6 +1056,8 @@ $('soundBtn').addEventListener('click', function(){
    इनिशियलाइज़
    ========================================================= */
 renderNameInputs();
+setTimeout(updateAudioStatus, 300);
+setTimeout(updateAudioStatus, 1500);
 </script>
 </body>
 </html>
