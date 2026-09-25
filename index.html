@@ -1,176 +1,943 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Puzzle Game</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        #game-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .box {
-            display: grid;
-            gap: 2px;
-            border: 2px solid black;
-            padding: 5px;
-            width: 310px;
-            height: 310px;
-        }
-        .piece {
-            border: 1px solid black;
-            background-size: 300px 300px;
-            cursor: pointer;
-        }
-        #stopwatch {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .btn {
-            padding: 10px 15px;
-            margin: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            background-color: #007BFF;
-            color: white;
-            border-radius: 5px;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🐦 चिड़िया उड़ – कबूतर उड़ | मल्टीप्लेयर गेम</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --wood:#8b5a2b;--cream:#fffdf7;--ink:#3a2416;
+  --green:#2ecc71;--red:#e74c3c;--gold:#f1c40f;
+}
+html,body{height:100%}
+body{
+  font-family:'Noto Sans Devanagari','Baloo 2','Segoe UI',system-ui,-apple-system,sans-serif;
+  min-height:100vh;color:var(--ink);
+  background:linear-gradient(180deg,#5fb3e8 0%,#9ed3f0 28%,#d9eec9 62%,#b6dd94 100%);
+  background-attachment:fixed;
+  padding:12px;overflow-x:hidden;
+}
+.sun{position:fixed;top:14px;right:20px;width:64px;height:64px;border-radius:50%;
+  background:radial-gradient(circle,#fff3a0,#ffd93b 60%,#f7b500);
+  box-shadow:0 0 40px 12px rgba(255,220,80,.55);z-index:0;pointer-events:none}
+.cloud{position:fixed;background:rgba(255,255,255,.75);border-radius:99px;z-index:0;pointer-events:none;
+  filter:blur(.3px)}
+.cloud:before,.cloud:after{content:'';position:absolute;background:inherit;border-radius:50%}
+.c1{width:110px;height:34px;top:60px;left:-140px;animation:drift 34s linear infinite}
+.c1:before{width:52px;height:52px;top:-22px;left:18px}
+.c1:after{width:38px;height:38px;top:-14px;left:60px}
+.c2{width:80px;height:26px;top:150px;left:-140px;animation:drift 48s linear infinite 6s;opacity:.7}
+.c2:before{width:40px;height:40px;top:-18px;left:12px}
+.c2:after{width:28px;height:28px;top:-10px;left:44px}
+@keyframes drift{to{transform:translateX(calc(100vw + 220px))}}
+
+.screen{display:none;max-width:1020px;margin:0 auto;position:relative;z-index:2}
+.screen.active{display:block;animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.4) rotate(-12deg);opacity:0}70%{transform:scale(1.12) rotate(4deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+/* ---------- SETUP ---------- */
+.title{text-align:center;margin:6px 0 4px;font-size:clamp(1.6rem,5.2vw,2.6rem);font-weight:900;
+  color:#7a3d00;text-shadow:2px 2px 0 #ffe08a,4px 4px 0 rgba(0,0,0,.12);line-height:1.25}
+.sub{text-align:center;font-size:.98rem;font-weight:700;color:#5a3b1e;margin-bottom:14px;opacity:.9}
+.card{background:var(--cream);border:3px solid var(--wood);border-radius:18px;padding:14px;
+  margin-bottom:12px;box-shadow:0 6px 0 rgba(139,90,43,.35)}
+.card>label{display:block;font-weight:900;font-size:1rem;margin-bottom:10px;color:#7a3d00}
+.chipRow{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-weight:900;font-size:1rem;padding:10px 16px;border-radius:12px;cursor:pointer;
+  border:3px solid #d9c4a5;background:#fff;color:#7a5c3a;transition:.15s;min-width:52px;touch-action:manipulation}
+.chip:hover{border-color:#b99a6b;transform:translateY(-2px)}
+.chip.active{background:linear-gradient(180deg,#ffd15c,#f5a623);border-color:#c47d00;color:#5a3300;
+  box-shadow:0 4px 0 #c47d00}
+.nameRow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.nameRow .nemoji{width:40px;height:40px;flex:0 0 40px;border-radius:50%;display:grid;place-items:center;
+  font-size:1.25rem;box-shadow:0 3px 0 rgba(0,0,0,.2)}
+.nameRow input{flex:1;font:inherit;font-weight:700;font-size:1rem;padding:11px 14px;border-radius:12px;
+  border:2.5px solid #d9c4a5;background:#fff;color:var(--ink);outline:none;min-width:0}
+.nameRow input:focus{border-color:#f5a623;box-shadow:0 0 0 4px rgba(245,166,35,.18)}
+.toggles{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:4px 0 14px}
+.toggles label{display:flex;align-items:center;gap:7px;font-weight:800;background:rgba(255,255,255,.7);
+  padding:9px 15px;border-radius:99px;border:2.5px solid rgba(139,90,43,.35);cursor:pointer;font-size:.95rem}
+.toggles input{width:19px;height:19px;accent-color:#f5a623;cursor:pointer}
+.bigBtn{display:block;width:100%;font:inherit;font-weight:900;font-size:1.35rem;padding:18px;border:none;
+  border-radius:18px;cursor:pointer;color:#fff;
+  background:linear-gradient(180deg,#ffb43b,#f57c00);box-shadow:0 7px 0 #b85c00;
+  transition:.1s;letter-spacing:.4px;touch-action:manipulation}
+.bigBtn:hover{filter:brightness(1.06)}
+.bigBtn:active{transform:translateY(5px);box-shadow:0 2px 0 #b85c00}
+.helpBox{background:rgba(255,255,255,.72);border:2.5px dashed #b99a6b;border-radius:16px;padding:12px 14px;
+  font-size:.92rem;line-height:1.85;font-weight:600;color:#5a3b1e;margin-bottom:14px}
+.helpBox b{color:#b85c00}
+
+/* ---------- GAME HUD ---------- */
+.hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;
+  background:rgba(255,253,247,.92);border:3px solid var(--wood);border-radius:16px;padding:9px 13px;
+  box-shadow:0 5px 0 rgba(139,90,43,.3);font-weight:900;font-size:.98rem}
+.hud .pill{background:#ffe9b8;border:2px solid #e0b45c;border-radius:99px;padding:5px 13px;white-space:nowrap}
+.hud .spacer{flex:1}
+.iconBtn{font:inherit;font-weight:900;font-size:.95rem;border:2.5px solid #d9c4a5;background:#fff;
+  border-radius:11px;padding:7px 12px;cursor:pointer;color:#7a5c3a;transition:.15s;touch-action:manipulation}
+.iconBtn:hover{background:#fff3d9}
+.iconBtn.off{opacity:.45;text-decoration:line-through}
+.timerWrap{height:20px;background:rgba(0,0,0,.18);border-radius:99px;overflow:hidden;margin-top:10px;
+  border:2.5px solid rgba(255,255,255,.85);box-shadow:0 3px 0 rgba(0,0,0,.12)}
+#timerBar{height:100%;width:100%;border-radius:99px;transition:width .06s linear;
+  background:linear-gradient(90deg,#27ae60,#2ecc71)}
+
+/* ---------- STAGE ---------- */
+.stage{background:rgba(255,253,247,.94);border:4px solid var(--wood);border-radius:24px;padding:18px 16px;
+  text-align:center;margin-top:10px;box-shadow:0 8px 0 rgba(139,90,43,.35),inset 0 0 44px rgba(255,220,150,.45);
+  position:relative;overflow:hidden}
+#animalEmoji{font-size:clamp(3.6rem,14vw,5.6rem);line-height:1;display:block}
+#animalEmoji.pop{animation:pop .4s ease-out}
+#animalText{font-size:clamp(1.5rem,6.5vw,2.5rem);font-weight:900;color:#8b4513;margin-top:6px;
+  text-shadow:2px 2px 0 #ffe0a3}
+#promptText{font-size:.94rem;font-weight:800;color:#8a6a48;margin-top:7px}
+.answerBanner{margin-top:10px;padding:12px 16px;border-radius:14px;font-weight:900;font-size:clamp(.9rem,3.4vw,1.08rem);
+  text-align:center;opacity:0;transform:translateY(-10px);transition:.25s;pointer-events:none}
+.answerBanner.show{opacity:1;transform:translateY(0)}
+.answerBanner.correct{background:#d6f8d6;color:#14651b;border:2.5px solid var(--green)}
+.answerBanner.wrong{background:#ffe1e1;color:#8b1a1a;border:2.5px solid var(--red)}
+
+/* ---------- PLAYER GRID ---------- */
+.playersGrid{display:grid;gap:10px;margin-top:12px;
+  grid-template-columns:repeat(auto-fit,minmax(148px,1fr))}
+.pcard{background:var(--cream);border:3px solid var(--pc);border-radius:18px;padding:10px;
+  box-shadow:0 5px 0 rgba(0,0,0,.16);transition:transform .15s,box-shadow .2s;display:flex;
+  flex-direction:column;gap:8px;position:relative}
+.pcard.did-press{transform:scale(.975)}
+.pcard.did-lock{opacity:.5}
+.phead{display:flex;align-items:center;gap:7px;font-weight:900;font-size:.97rem;min-width:0}
+.phead .pemoji{font-size:1.25rem;flex:0 0 auto}
+.phead .pname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pbtn{font:inherit;font-weight:900;font-size:1.02rem;padding:15px 8px;border:none;border-radius:13px;
+  background:var(--pc);color:#fff;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.3);transition:.08s;
+  touch-action:manipulation;letter-spacing:.3px}
+.pbtn:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.3)}
+.pbtn:disabled{cursor:default;box-shadow:none}
+.pbtn.pressed{background:var(--green)!important}
+.pbtn.locked{background:#95a5a6!important;font-size:.9rem}
+.pbtn.pbtn-wrong{background:#e74c3c!important;color:#fff!important;
+  box-shadow:0 5px 0 rgba(0,0,0,.3)!important;cursor:pointer}
+.pbtn.pbtn-wrong:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.3)!important}
+.pfoot{display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:.95rem}
+.pscore{background:#ffe9b8;border:2px solid #e0b45c;border-radius:99px;padding:2px 12px}
+.pdelta{font-size:1.05rem;font-weight:900}
+.pdelta.plus{color:#1e8e3e}.pdelta.minus{color:#c0392b}
+.pcard.fb-correct{box-shadow:0 0 0 4px var(--green),0 5px 0 rgba(0,0,0,.16)}
+.pcard.fb-wrong{box-shadow:0 0 0 4px var(--red),0 5px 0 rgba(0,0,0,.16);animation:shake .4s}
+.pcard.fb-miss{opacity:.72}
+
+/* ---------- RESULT ---------- */
+.winnerBig{text-align:center;font-size:clamp(1.7rem,7vw,3rem);font-weight:900;color:#fff;
+  background:linear-gradient(135deg,#f5a623,#e67e22);border:4px solid #b85c00;border-radius:22px;
+  padding:18px 12px;box-shadow:0 8px 0 #8a4500;text-shadow:2px 2px 0 rgba(0,0,0,.25);
+  animation:pop .5s ease-out;line-height:1.3;word-break:break-word}
+.statRow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:12px 0}
+.stat{background:var(--cream);border:3px solid var(--wood);border-radius:14px;padding:10px 16px;
+  font-weight:900;box-shadow:0 4px 0 rgba(139,90,43,.3);font-size:.98rem}
+.topThree{background:var(--cream);border:3px solid var(--wood);border-radius:18px;padding:14px;
+  margin-bottom:12px;box-shadow:0 6px 0 rgba(139,90,43,.3)}
+.rankLine{font-weight:900;font-size:1.08rem;padding:7px 4px;border-bottom:2px dashed #e8d9bf;
+  display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.rankLine:last-child{border-bottom:none}
+.rankLine span{color:#8a6a48;font-size:.92rem}
+.rtable{width:100%;border-collapse:collapse;background:var(--cream);border-radius:16px;overflow:hidden;
+  box-shadow:0 6px 0 rgba(139,90,43,.3);font-size:.98rem}
+.rtable th{background:linear-gradient(180deg,#ffd15c,#f5a623);color:#5a3300;font-weight:900;
+  padding:11px 8px;text-align:left;font-size:.92rem}
+.rtable td{padding:11px 8px;border-bottom:2px solid #f0e5d2;font-weight:800}
+.rtable tr:last-child td{border-bottom:none}
+.rtable tr.r1{background:linear-gradient(90deg,#fff7d6,#fffdf3)}
+.rtable tr.r2{background:linear-gradient(90deg,#f2f6fa,#fffdf3)}
+.rtable tr.r3{background:linear-gradient(90deg,#fdf0e2,#fffdf3)}
+.rrank{font-size:1.05rem;white-space:nowrap}
+.rname{display:flex;align-items:center;gap:6px}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;flex:0 0 12px}
+.rpts{font-weight:900;color:#b85c00;font-size:1.08rem}
+.winTag{background:var(--green);color:#fff;padding:3px 10px;border-radius:99px;font-size:.82rem;font-weight:900;
+  white-space:nowrap}
+.detailsGrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin-top:12px}
+.dcard{background:var(--cream);border:3px solid var(--pc);border-radius:16px;padding:12px;
+  box-shadow:0 5px 0 rgba(0,0,0,.16)}
+.dhead{font-weight:900;font-size:1.02rem;display:flex;justify-content:space-between;align-items:center;gap:8px;
+  margin-bottom:9px;flex-wrap:wrap}
+.drank{background:#ffe9b8;border:2px solid #e0b45c;border-radius:99px;padding:2px 10px;font-size:.8rem}
+.dgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.dgrid>div{background:#faf3e4;border-radius:10px;padding:7px 3px}
+.dgrid b{display:block;font-size:1.15rem;font-weight:900}
+.dgrid span{font-size:.72rem;font-weight:800;color:#8a6a48;line-height:1.3;display:block}
+.dgrid b.g{color:#1e8e3e}.dgrid b.r{color:#c0392b}.dgrid b.o{color:#d68910}
+.actionRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.actionRow .bigBtn{flex:1;min-width:150px;font-size:1.15rem;padding:16px}
+.bigBtn.alt{background:linear-gradient(180deg,#63c8f0,#2196c9);box-shadow:0 7px 0 #136b91}
+.bigBtn.alt:active{box-shadow:0 2px 0 #136b91}
+.bigBtn.grey{background:linear-gradient(180deg,#b8b8b8,#8a8a8a);box-shadow:0 7px 0 #5f5f5f}
+.bigBtn.grey:active{box-shadow:0 2px 0 #5f5f5f}
+@media(max-width:420px){
+  .playersGrid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .pbtn{font-size:.92rem;padding:13px 5px}
+  .dgrid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
 </head>
 <body>
-    <h1>Image Puzzle Game</h1>
-    <button class="btn" onclick="startGame()">START</button>
-    <button class="btn" onclick="stopStopwatch()">STOP</button>
+<div class="sun"></div>
+<div class="cloud c1"></div>
+<div class="cloud c2"></div>
 
-    <br>
-    <button class="btn" onclick="changeGridSize(3)">3x3</button>
-    <button class="btn" onclick="changeGridSize(4)">4x4</button>
-    <button class="btn" onclick="changeGridSize(5)">5x5</button>
+<!-- ================= SETUP SCREEN ================= -->
+<section id="setupScreen" class="screen active">
+  <h1 class="title">🐦 चिड़िया उड़ – कबूतर उड़ 🕊️</h1>
+  <p class="sub">गाँव का मज़ेदार मल्टीप्लेयर गेम • 2 से 6 खिलाड़ी</p>
 
-    <div id="stopwatch">Time: 0s</div>
-    
-    <div id="game-container">
-        <div id="box1" class="box"></div>
-        <div id="box2" class="box"></div>
+  <div class="helpBox">
+    <b>कैसे खेलें?</b><br>
+    1️⃣ स्क्रीन पर जानवर का नाम और <b>“उड़!”</b> दिखेगा।<br>
+    2️⃣ अगर वो <b>उड़ता है</b> → जल्दी से अपना बटन दबाओ 👋<br>
+    3️⃣ अगर <b>नहीं उड़ता</b> → बटन मत दबाओ!<br>
+    4️⃣ अगर पक्षी उड़ता है और तुमने सही दबाया — बाकी खिलाड़ियों का बटन उस राउंड में बंद हो जाएगा।<br>
+    5️⃣ गलत दबाने पर सिर्फ तुम्हें −5 मिलेगा — बटन बंद नहीं होगा और बाकी खिलाड़ी भी दबा सकेंगे।<br>
+    6️⃣ सही जवाब <b>+10</b> • गलत जवाब <b>−5</b>
+  </div>
+
+  <div class="card">
+    <label>👥 कितने खिलाड़ी खेलेंगे?</label>
+    <div class="chipRow" id="playerCountBtns">
+      <button class="chip active" data-count="2">2</button>
+      <button class="chip" data-count="3">3</button>
+      <button class="chip" data-count="4">4</button>
+      <button class="chip" data-count="5">5</button>
+      <button class="chip" data-count="6">6</button>
     </div>
+  </div>
 
-    <script>
-        let imagePieces = [];
-        let time = 0;
-        let timer;
-        let gridSize = 5; // Default is 5x5 (25 pieces)
-        let box1 = [];
-        let box2 = [];
-        const cloudinaryImageURL = "https://res.cloudinary.com/dsqorpgf2/image/upload/v1739961046/yog_arogya_logo_hxeczu.jpg";
+  <div class="card">
+    <label>📝 खिलाड़ियों के नाम</label>
+    <div id="nameInputs"></div>
+  </div>
 
-        function startGame() {
-            const img = new Image();
-            img.crossOrigin = "anonymous"; 
-            img.src = cloudinaryImageURL;
-            img.onload = function() {
-                splitImage(img);
-                startStopwatch();
-            };
+  <div class="card">
+    <label>⚡ स्पीड लेवल (Timer)</label>
+    <div class="chipRow" id="speedBtns">
+      <button class="chip" data-speed="easy">🐢 Easy</button>
+      <button class="chip active" data-speed="normal">🚶 Normal</button>
+      <button class="chip" data-speed="hard">🐇 Hard</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>🔄 कुल राउंड</label>
+    <div class="chipRow" id="roundBtns">
+      <button class="chip" data-rounds="10">10</button>
+      <button class="chip" data-rounds="15">15</button>
+      <button class="chip active" data-rounds="20">20</button>
+      <button class="chip" data-rounds="30">30</button>
+    </div>
+  </div>
+
+  <div class="toggles">
+    <label><input type="checkbox" id="soundToggle" checked> 🔊 साउंड इफेक्ट</label>
+    <label><input type="checkbox" id="voiceToggle" checked> 🎤 उद्घोषक आवाज़</label>
+  </div>
+
+  <button class="bigBtn" id="startBtn">🚀 गेम शुरू करें</button>
+  <div style="height:18px"></div>
+</section>
+
+<!-- ================= GAME SCREEN ================= -->
+<section id="gameScreen" class="screen">
+  <div class="hud">
+    <span class="pill">राउंड <b id="roundNum">1</b>/<span id="roundTotal">20</span></span>
+    <span class="pill" id="speedLabel">🚶 Normal</span>
+    <span class="spacer"></span>
+    <button class="iconBtn" id="soundBtn">🔊</button>
+    <button class="iconBtn" id="quitBtn">✖ बाहर</button>
+  </div>
+
+  <div class="timerWrap"><div id="timerBar"></div></div>
+
+  <div class="stage">
+    <span id="animalEmoji">🐦</span>
+    <div id="animalText">चिड़िया उड़!</div>
+    <div id="promptText">अगर उड़ता है तो अपना बटन दबाओ! 👋</div>
+  </div>
+
+  <div id="answerBanner" class="answerBanner"></div>
+
+  <div id="playersGrid" class="playersGrid"></div>
+  <div style="height:18px"></div>
+</section>
+
+<!-- ================= RESULT SCREEN ================= -->
+<section id="resultScreen" class="screen">
+  <div class="winnerBig" id="winnerBig">🏆 WINNER</div>
+  <div class="statRow">
+    <div class="stat" id="statHigh">🎯 Highest Score: 0 Points</div>
+    <div class="stat" id="statRounds">📊 Total Rounds: 20</div>
+  </div>
+  <div class="topThree" id="topThree"></div>
+  <div id="resultTableWrap"></div>
+  <h2 style="margin:16px 0 2px;font-size:1.2rem;color:#7a3d00;text-align:center">📋 हर खिलाड़ी की डिटेल</h2>
+  <div class="detailsGrid" id="playerDetails"></div>
+  <div class="actionRow">
+    <button class="bigBtn alt" id="rematchBtn">🔄 रीमैच (वही खिलाड़ी)</button>
+    <button class="bigBtn" id="newGameBtn">🆕 नया गेम</button>
+  </div>
+  <div style="height:22px"></div>
+</section>
+
+<script>
+"use strict";
+
+/* =========================================================
+   डेटा : उड़ने वाले और न उड़ने वाले जानवर
+   ========================================================= */
+const ANIMALS = [
+  // ---- उड़ने वाले ----
+  {n:'चिड़िया',  e:'🐦', f:true},
+  {n:'कबूतर',   e:'🕊️', f:true},
+  {n:'तोता',    e:'🦜', f:true},
+  {n:'मोर',     e:'🦚', f:true},
+  {n:'बाज',     e:'🦅', f:true},
+  {n:'उल्लू',    e:'🦉', f:true},
+  {n:'बत्तख',   e:'🦆', f:true},
+  {n:'हंस',     e:'🦢', f:true},
+  {n:'कौआ',     e:'🐦', f:true},
+  {n:'गौरैया',  e:'🐦', f:true},
+  {n:'तितली',   e:'🦋', f:true},
+  {n:'मधुमक्खी', e:'🐝', f:true},
+  {n:'चमगादड़', e:'🦇', f:true},
+  {n:'पतंग',    e:'🪁', f:true},
+  // ---- न उड़ने वाले ----
+  {n:'गाय',     e:'🐄', f:false},
+  {n:'बकरी',    e:'🐐', f:false},
+  {n:'कुत्ता',   e:'🐕', f:false},
+  {n:'बिल्ली',   e:'🐈', f:false},
+  {n:'शेर',     e:'🦁', f:false},
+  {n:'हाथी',    e:'🐘', f:false},
+  {n:'घोड़ा',   e:'🐎', f:false},
+  {n:'भैंस',    e:'🐃', f:false},
+  {n:'सूअर',    e:'🐖', f:false},
+  {n:'खरगोश',   e:'🐇', f:false},
+  {n:'बंदर',    e:'🐒', f:false},
+  {n:'मछली',    e:'🐟', f:false},
+  {n:'कछुआ',    e:'🐢', f:false},
+  {n:'मेंढक',   e:'🐸', f:false},
+  {n:'चूहा',    e:'🐁', f:false},
+  {n:'ऊंट',     e:'🐪', f:false},
+  {n:'भेड़',    e:'🐑', f:false},
+  {n:'हिरण',    e:'🦌', f:false},
+  {n:'गिलहरी',  e:'🐿️', f:false}
+];
+
+const PLAYER_META = [
+  {emoji:'🐦', color:'#e74c3c'},
+  {emoji:'🕊️', color:'#2980b9'},
+  {emoji:'🦜', color:'#27ae60'},
+  {emoji:'🦚', color:'#8e44ad'},
+  {emoji:'🦉', color:'#e67e22'},
+  {emoji:'🦆', color:'#16a085'}
+];
+
+const SPEEDS = {
+  easy:   {label:'🐢 Easy',   time:4500},
+  normal: {label:'🚶 Normal', time:3200},
+  hard:   {label:'🐇 Hard',   time:2200}
+};
+
+/* =========================================================
+   स्टेट
+   ========================================================= */
+const S = {
+  playerCount: 2,
+  speed: 'normal',
+  totalRounds: 20,
+  sound: true,
+  voice: true,
+  players: [],
+  ranked: [],
+  round: 0,
+  phase: 'idle',          // idle | playing | evaluating | finished
+  pressed: new Set(),     // जिन्होंने इस राउंड में दबाया (सही/गलत दोनों)
+  lockedOut: null,        // जिसका बटन इस राउंड में लॉक हुआ
+  animal: null,
+  bag: [],
+  lastAnimal: null,
+  rafId: 0,
+  feedbackTimer: 0,
+  startTime: 0,
+  timeLimit: 3200,
+  lastSec: -1
+};
+
+/* =========================================================
+   हेल्पर
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const escapeHtml = s => String(s).replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+/* =========================================================
+   साउंड इंजन (Web Audio API)
+   ========================================================= */
+let actx = null;
+function audio(){
+  if(!actx){
+    try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ return null; }
+  }
+  if(actx.state === 'suspended'){ actx.resume().catch(()=>{}); }
+  return actx;
+}
+function tone(freq, dur, type, vol, delay){
+  if(!S.sound) return;
+  const c = audio(); if(!c) return;
+  type = type || 'sine'; vol = vol == null ? 0.14 : vol; delay = delay || 0;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, c.currentTime + delay);
+  o.connect(g); g.connect(c.destination);
+  const t = c.currentTime + delay;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.start(t); o.stop(t + dur + 0.03);
+}
+function sfx(name){
+  if(!S.sound) return;
+  switch(name){
+    case 'press':   tone(720, 0.07, 'square', 0.11); break;
+    case 'start':   tone(520, 0.09, 'triangle', 0.13); tone(780, 0.11, 'triangle', 0.13, 0.09); break;
+    case 'tick':    tone(950, 0.05, 'square', 0.07); break;
+    case 'correct': tone(660, 0.10, 'sine', 0.16); tone(880, 0.16, 'sine', 0.16, 0.09); tone(1180,0.2,'sine',0.13,0.19); break;
+    case 'wrong':   tone(190, 0.22, 'sawtooth', 0.15); tone(120, 0.28, 'sawtooth', 0.15, 0.11); break;
+    case 'win':
+      [523,659,784,1047].forEach((f,i)=> tone(f, 0.28, 'triangle', 0.17, i*0.15));
+      tone(1319, 0.55, 'triangle', 0.15, 0.62);
+      break;
+  }
+}
+
+/* =========================================================
+   आवाज़ (उद्घोषक)
+   ========================================================= */
+function speak(text){
+  if(!S.voice || !('speechSynthesis' in window)) return;
+  try{
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'hi-IN'; u.rate = 1.02; u.pitch = 1.2; u.volume = 1;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* =========================================================
+   स्क्रीन स्विच
+   ========================================================= */
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = $(name + 'Screen');
+  if(el) el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+/* =========================================================
+   सेटअप स्क्रीन
+   ========================================================= */
+function renderNameInputs(){
+  const wrap = $('nameInputs');
+  const prev = Array.from(wrap.querySelectorAll('input')).map(i => i.value);
+  wrap.innerHTML = '';
+  for(let i = 0; i < S.playerCount; i++){
+    const meta = PLAYER_META[i];
+    const row = document.createElement('div');
+    row.className = 'nameRow';
+    const span = document.createElement('span');
+    span.className = 'nemoji';
+    span.style.background = meta.color;
+    span.textContent = meta.emoji;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.maxLength = 14;
+    input.placeholder = 'खिलाड़ी ' + (i + 1) + ' का नाम';
+    input.value = (prev[i] && prev[i].trim()) ? prev[i] : ('खिलाड़ी ' + (i + 1));
+    row.appendChild(span); row.appendChild(input);
+    wrap.appendChild(row);
+  }
+}
+
+/* चिप बटन हैंडलर */
+$('playerCountBtns').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if(!b) return;
+  $('playerCountBtns').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  b.classList.add('active');
+  S.playerCount = Number(b.dataset.count);
+  renderNameInputs();
+});
+$('speedBtns').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if(!b) return;
+  $('speedBtns').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  b.classList.add('active');
+  S.speed = b.dataset.speed;
+});
+$('roundBtns').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if(!b) return;
+  $('roundBtns').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  b.classList.add('active');
+  S.totalRounds = Number(b.dataset.rounds);
+});
+$('soundToggle').addEventListener('change', e => { S.sound = e.target.checked; });
+$('voiceToggle').addEventListener('change', e => {
+  S.voice = e.target.checked;
+  if(!S.voice && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+});
+$('nameInputs').addEventListener('keydown', e => {
+  if(e.key === 'Enter'){ e.preventDefault(); startGameFromSetup(); }
+});
+
+/* =========================================================
+   गेम शुरू (सेटअप से)
+   ========================================================= */
+function startGameFromSetup(){
+  const inputs = Array.from($('nameInputs').querySelectorAll('input'));
+  S.players = [];
+  for(let i = 0; i < S.playerCount; i++){
+    const meta = PLAYER_META[i];
+    let nm = (inputs[i] && inputs[i].value ? inputs[i].value : '').trim();
+    if(!nm) nm = 'खिलाड़ी ' + (i + 1);
+    S.players.push({
+      id: i, name: nm, emoji: meta.emoji, color: meta.color,
+      score: 0, correct: 0, wrong: 0, missed: 0,
+      lastDelta: 0, lastType: '', rank: 0
+    });
+  }
+  cancelAnimationFrame(S.rafId);
+  clearTimeout(S.feedbackTimer);
+  S.rafId = 0; S.feedbackTimer = 0;
+  if('speechSynthesis' in window){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+
+  S.round = 0; S.phase = 'idle'; S.pressed = new Set(); S.lockedOut = null;
+  S.bag = []; S.lastAnimal = null; S.ranked = [];
+
+  $('roundTotal').textContent = S.totalRounds;
+  $('speedLabel').textContent = SPEEDS[S.speed].label;
+  $('answerBanner').classList.remove('show');
+
+  audio();
+  showScreen('game');
+  startRound();
+}
+
+/* =========================================================
+   राउंड लॉजिक
+   ========================================================= */
+function nextAnimal(){
+  if(!S.bag || S.bag.length === 0){
+    S.bag = shuffle(ANIMALS.slice());
+    const n = S.bag.length;
+    if(S.lastAnimal && n > 1 && S.bag[n-1] === S.lastAnimal){
+      const t = S.bag[n-1]; S.bag[n-1] = S.bag[n-2]; S.bag[n-2] = t;
+    }
+  }
+  const a = S.bag.pop();
+  S.lastAnimal = a;
+  return a;
+}
+
+function buildPlayersGrid(){
+  const grid = $('playersGrid');
+  grid.innerHTML = '';
+  S.players.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'pcard';
+    card.id = 'pcard-' + p.id;
+    card.style.setProperty('--pc', p.color);
+    card.innerHTML =
+      '<div class="phead"><span class="pemoji">' + p.emoji + '</span>' +
+      '<span class="pname">' + escapeHtml(p.name) + '</span></div>' +
+      '<button class="pbtn" data-pid="' + p.id + '">दबाओ! 👋</button>' +
+      '<div class="pfoot"><span class="pscore">' + p.score + '</span>' +
+      '<span class="pdelta"></span></div>';
+    grid.appendChild(card);
+  });
+}
+
+function startRound(){
+  S.round++;
+  S.phase = 'playing';
+  S.pressed = new Set();
+  S.lockedOut = null;
+  S.animal = nextAnimal();
+  S.lastSec = -1;
+
+  $('roundNum').textContent = S.round;
+  $('animalEmoji').textContent = S.animal.e;
+  $('animalEmoji').classList.remove('pop');
+  void $('animalEmoji').offsetWidth;
+  $('animalEmoji').classList.add('pop');
+  $('animalText').textContent = S.animal.n + ' उड़!';
+  $('promptText').textContent = 'अगर उड़ता है तो अपना बटन दबाओ! 👋';
+  $('answerBanner').classList.remove('show');
+
+  buildPlayersGrid();
+  updateTimerBar(1);
+  sfx('start');
+  speak(S.animal.n + ' उड़!');
+
+  S.timeLimit = SPEEDS[S.speed].time;
+  S.startTime = performance.now();
+  cancelAnimationFrame(S.rafId);
+  S.rafId = requestAnimationFrame(tick);
+}
+
+function updateTimerBar(frac){
+  const bar = $('timerBar');
+  bar.style.width = (frac * 100) + '%';
+  bar.style.background = frac > 0.5
+    ? 'linear-gradient(90deg,#27ae60,#2ecc71)'
+    : frac > 0.25
+      ? 'linear-gradient(90deg,#f39c12,#f1c40f)'
+      : 'linear-gradient(90deg,#c0392b,#e74c3c)';
+}
+
+function tick(now){
+  if(S.phase !== 'playing') return;
+  const left = S.timeLimit - (now - S.startTime);
+  if(left <= 0){
+    updateTimerBar(0);
+    endRound();
+    return;
+  }
+  updateTimerBar(left / S.timeLimit);
+
+  const secLeft = Math.ceil(left / 1000);
+  if(secLeft <= 3 && secLeft !== S.lastSec){
+    S.lastSec = secLeft;
+    if(secLeft > 0) sfx('tick');
+  }
+  S.rafId = requestAnimationFrame(tick);
+}
+
+/* =========================================================
+   ⭐ बटन दबाने का मुख्य लॉजिक (सुधरा हुआ)
+   
+   नियम:
+   • अगर जानवर उड़ता है (flies = true):
+       - दबाना सही है → बटन disable हो जाएगा
+       - जब तक सिर्फ 1 खिलाड़ी बचे, तब उसका बटन लॉक होकर राउंड खत्म
+   • अगर जानवर नहीं उड़ता (flies = false):
+       - दबाना गलत है → बटन DISABLE नहीं होगा (लाल रंग में दिखेगा)
+       - बाकी खिलाड़ियों का बटन भी चालू रहेगा
+       - राउंड सिर्फ टाइमर खत्म होने पर खत्म होगा
+   ========================================================= */
+function onPress(pid){
+  if(S.phase !== 'playing') return;
+  if(S.pressed.has(pid)) return;
+  if(S.lockedOut === pid) return;
+  const p = S.players.find(x => x.id === pid);
+  if(!p) return;
+
+  S.pressed.add(pid);
+  sfx('press');
+
+  const card = $('pcard-' + pid);
+  const flies = S.animal.f;
+
+  if(card){
+    const btn = card.querySelector('.pbtn');
+    if(flies){
+      // ✅ सही दबाया → बटन green + disable
+      btn.classList.add('pressed');
+      btn.textContent = '✓ दबा दिया';
+      btn.disabled = true;
+    } else {
+      // ❌ गलत दबाया → बटन लाल, पर ENABLED रहेगा
+      btn.textContent = '✗ गलत दबाया';
+      btn.classList.add('pbtn-wrong');
+      // ध्यान दें: disabled = true कभी नहीं लगाया जाएगा
+    }
+    card.classList.add('did-press');
+  }
+
+  // ⭐ बाकी खिलाड़ियों का बटन सिर्फ तब बंद करो जब दबाना सही हो
+  if(flies){
+    const remaining = S.players.filter(x => !S.pressed.has(x.id));
+    if(remaining.length <= 1){
+      if(remaining.length === 1){
+        const last = remaining[0];
+        S.lockedOut = last.id;
+        const c = $('pcard-' + last.id);
+        if(c){
+          const b = c.querySelector('.pbtn');
+          b.classList.add('locked');
+          b.textContent = '⏳ अगला चांस';
+          b.disabled = true;
+          c.classList.add('did-lock');
         }
+      }
+      endRound();
+    }
+  }
+  // ❗ अगर नहीं उड़ता → कुछ न करें, राउंड टाइमर खत्म होने पर खत्म होगा
+}
 
-        function changeGridSize(size) {
-            if (size === 3) {
-                let password = prompt("Enter password to change to 3x3:");
-                if (password !== "12rrmm") {
-                    alert("Incorrect password!");
-                    return;
-                }
-            }
-            gridSize = size;
-            startGame();
-        }
+/* ग्रिड पर इवेंट डेलिगेशन (एक ही बार) */
+$('playersGrid').addEventListener('click', e => {
+  const btn = e.target.closest('.pbtn');
+  if(!btn) return;
+  onPress(Number(btn.dataset.pid));
+});
 
-        function splitImage(img) {
-            const box1Div = document.getElementById("box1");
-            const box2Div = document.getElementById("box2");
+/* कीबोर्ड 1..6 */
+document.addEventListener('keydown', e => {
+  if(S.phase !== 'playing') return;
+  const n = parseInt(e.key, 10);
+  if(n >= 1 && n <= 6 && n <= S.players.length){
+    e.preventDefault();
+    onPress(n - 1);
+  }
+});
 
-            box1Div.style.gridTemplateColumns = `repeat(${gridSize}, ${300 / gridSize}px)`;
-            box1Div.style.gridTemplateRows = `repeat(${gridSize}, ${300 / gridSize}px)`;
-            box2Div.style.gridTemplateColumns = `repeat(${gridSize}, ${300 / gridSize}px)`;
-            box2Div.style.gridTemplateRows = `repeat(${gridSize}, ${300 / gridSize}px)`;
+/* =========================================================
+   राउंड समाप्त + स्कोरिंग
+   ========================================================= */
+function endRound(){
+  if(S.phase !== 'playing') return;
+  S.phase = 'evaluating';
+  cancelAnimationFrame(S.rafId);
 
-            box1Div.innerHTML = "";
-            box2Div.innerHTML = "";
-            imagePieces = [];
-            box1 = [];
-            box2 = [];
+  const flies = S.animal.f;
+  let anyWrong = false, anyPress = false;
 
-            for (let y = 0; y < gridSize; y++) {
-                for (let x = 0; x < gridSize; x++) {
-                    const piece = document.createElement("div");
-                    piece.classList.add("piece");
-                    piece.style.width = `${300 / gridSize}px`;
-                    piece.style.height = `${300 / gridSize}px`;
-                    piece.style.backgroundImage = `url(${img.src})`;
-                    piece.style.backgroundPosition = `-${x * (300 / gridSize)}px -${y * (300 / gridSize)}px`;
-                    piece.addEventListener("click", () => movePiece(piece));
-                    imagePieces.push(piece);
-                }
-            }
+  S.players.forEach(p => {
+    const didPress = S.pressed.has(p.id);
+    let pts = 0, type = 'miss';
 
-            shuffle(imagePieces);
-            box1 = imagePieces.slice(0, gridSize * gridSize);
-            updateBoard();
-        }
+    if(flies && didPress){         pts = 10;  type = 'correct'; p.correct++; }
+    else if(!flies && didPress){   pts = -5;  type = 'wrong';   p.wrong++;   }
+    else if(!flies && !didPress){  pts = 10;  type = 'correct'; p.correct++; }
+    else {                         pts = 0;   type = 'miss';    p.missed++;  }
 
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                let j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
+    p.score += pts;
+    p.lastDelta = pts;
+    p.lastType = type;
+    if(type === 'wrong') anyWrong = true;
+    if(didPress) anyPress = true;
+  });
 
-        function movePiece(piece) {
-            if (box1.includes(piece)) {
-                box1 = box1.filter(p => p !== piece);
-                box2.push(piece);
-            } else {
-                box2 = box2.filter(p => p !== piece);
-                box1.push(piece);
-            }
-            updateBoard();
-        }
+  S.players.forEach(p => {
+    const card = $('pcard-' + p.id);
+    if(!card) return;
+    card.classList.add('fb-' + p.lastType);
+    const d = card.querySelector('.pdelta');
+    d.textContent = p.lastDelta > 0 ? ('+' + p.lastDelta) : (p.lastDelta < 0 ? String(p.lastDelta) : '0');
+    d.classList.add(p.lastDelta >= 0 ? 'plus' : 'minus');
+    if(p.lastDelta < 0) d.classList.remove('plus');
+    card.querySelector('.pscore').textContent = p.score;
+  });
 
-        function updateBoard() {
-            const box1Div = document.getElementById("box1");
-            const box2Div = document.getElementById("box2");
-            box1Div.innerHTML = "";
-            box2Div.innerHTML = "";
-            box1.forEach(piece => box1Div.appendChild(piece));
-            box2.forEach(piece => box2Div.appendChild(piece));
-        }
+  const banner = $('answerBanner');
+  if(flies){
+    banner.className = 'answerBanner correct show';
+    banner.innerHTML = '✅ ' + S.animal.e + ' <b>' + S.animal.n + '</b> उड़ती है! — सही जवाब: बटन दबाना था';
+  } else {
+    banner.className = 'answerBanner wrong show';
+    banner.innerHTML = '❌ ' + S.animal.e + ' <b>' + S.animal.n + '</b> नहीं उड़ती! — सही जवाब: बटन नहीं दबाना था';
+  }
 
-        function startStopwatch() {
-            clearInterval(timer);
-            time = 0;
-            document.getElementById("stopwatch").innerText = "Time: 0s";
-            timer = setInterval(() => {
-                time++;
-                document.getElementById("stopwatch").innerText = `Time: ${time}s`;
-            }, 1000);
-        }
+  if(anyWrong) sfx('wrong');
+  else if(anyPress || !flies) sfx('correct');
+  else sfx('wrong');
 
-        function stopStopwatch() {
-            clearInterval(timer);
-        }
-    </script>
+  clearTimeout(S.feedbackTimer);
+  S.feedbackTimer = setTimeout(() => {
+    banner.classList.remove('show');
+    nextRound();
+  }, 1700);
+}
+
+function nextRound(){
+  if(S.round >= S.totalRounds){ finishGame(); return; }
+  startRound();
+}
+
+/* =========================================================
+   गेम खत्म + रिज़ल्ट
+   ========================================================= */
+function finishGame(){
+  S.phase = 'finished';
+  cancelAnimationFrame(S.rafId);
+  clearTimeout(S.feedbackTimer);
+
+  const sorted = S.players.slice().sort((a, b) =>
+    (b.score - a.score) || (b.correct - a.correct) || a.name.localeCompare(b.name, 'hi')
+  );
+
+  let rank = 0, prevScore = null;
+  sorted.forEach((p, i) => {
+    if(prevScore === null || p.score !== prevScore){
+      rank = i + 1;
+      prevScore = p.score;
+    }
+    p.rank = rank;
+  });
+
+  S.ranked = sorted;
+  renderResults();
+  showScreen('result');
+  sfx('win');
+  speak('विजेता है ' + sorted[0].name + '। बधाई हो!');
+}
+
+function renderResults(){
+  const ranked = S.ranked;
+  const medals = ['🥇', '🥈', '🥉'];
+  const ordinals = ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth'];
+  const top = ranked[0];
+
+  $('winnerBig').innerHTML = '🏆 WINNER: ' + escapeHtml(String(top.name).toUpperCase());
+  $('statHigh').textContent = '🎯 Highest Score: ' + top.score + ' Points';
+  $('statRounds').textContent = '📊 Total Rounds: ' + S.totalRounds;
+
+  let lines = '';
+  ranked.slice(0, 3).forEach((p, i) => {
+    lines += '<div class="rankLine">' + medals[i] + ' ' + ordinals[i] + ' Rank — ' +
+             escapeHtml(p.name) + ' <span>' + p.score + ' अंक</span></div>';
+  });
+  $('topThree').innerHTML = lines;
+
+  let html = '<table class="rtable"><thead><tr>' +
+             '<th>Rank</th><th>Player</th><th>Points</th><th>Result</th>' +
+             '</tr></thead><tbody>';
+  ranked.forEach(p => {
+    const m = p.rank <= 3 ? medals[p.rank - 1] : '';
+    const res = p.rank === 1 ? '<span class="winTag">Winner 🏆</span>' : '';
+    html += '<tr class="r' + p.rank + '">' +
+              '<td class="rrank">' + m + ' ' + p.rank + '</td>' +
+              '<td class="rname"><span class="dot" style="background:' + p.color + '"></span>' +
+                p.emoji + ' ' + escapeHtml(p.name) + '</td>' +
+              '<td class="rpts">' + p.score + '</td>' +
+              '<td>' + res + '</td>' +
+            '</tr>';
+  });
+  html += '</tbody></table>';
+  $('resultTableWrap').innerHTML = html;
+
+  let dh = '';
+  ranked.forEach(p => {
+    dh += '<div class="dcard" style="--pc:' + p.color + '">' +
+            '<div class="dhead">' + p.emoji + ' ' + escapeHtml(p.name) +
+              '<span class="drank">Rank #' + p.rank + '</span></div>' +
+            '<div class="dgrid">' +
+              '<div><b>' + p.score + '</b><span>कुल अंक</span></div>' +
+              '<div><b class="g">' + p.correct + '</b><span>सही जवाब</span></div>' +
+              '<div><b class="r">' + p.wrong + '</b><span>गलत जवाब</span></div>' +
+              '<div><b class="o">' + p.missed + '</b><span>छूटे राउंड</span></div>' +
+            '</div>' +
+          '</div>';
+  });
+  $('playerDetails').innerHTML = dh;
+}
+
+/* =========================================================
+   रीमैच / नया गेम
+   ========================================================= */
+function rematch(){
+  cancelAnimationFrame(S.rafId);
+  clearTimeout(S.feedbackTimer);
+  S.rafId = 0; S.feedbackTimer = 0;
+  if('speechSynthesis' in window){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+
+  S.players.forEach(p => {
+    p.score = 0; p.correct = 0; p.wrong = 0; p.missed = 0;
+    p.lastDelta = 0; p.lastType = ''; p.rank = 0;
+  });
+  S.round = 0; S.phase = 'idle';
+  S.pressed = new Set(); S.lockedOut = null;
+  S.bag = []; S.lastAnimal = null; S.ranked = [];
+  S.startTime = 0; S.lastSec = -1;
+
+  $('roundTotal').textContent = S.totalRounds;
+  $('speedLabel').textContent = SPEEDS[S.speed].label;
+  $('answerBanner').classList.remove('show');
+  $('answerBanner').className = 'answerBanner';
+  $('playersGrid').innerHTML = '';
+  updateTimerBar(1);
+
+  audio();
+  showScreen('game');
+  startRound();
+}
+
+function newGame(){
+  cancelAnimationFrame(S.rafId);
+  clearTimeout(S.feedbackTimer);
+  S.rafId = 0;
+  S.feedbackTimer = 0;
+  if('speechSynthesis' in window){
+    try{ window.speechSynthesis.cancel(); }catch(e){}
+  }
+
+  S.players = [];
+  S.ranked = [];
+  S.round = 0;
+  S.phase = 'idle';
+  S.pressed = new Set();
+  S.lockedOut = null;
+  S.bag = [];
+  S.lastAnimal = null;
+  S.startTime = 0;
+  S.lastSec = -1;
+
+  $('playersGrid').innerHTML = '';
+  $('answerBanner').classList.remove('show');
+  $('answerBanner').className = 'answerBanner';
+  $('playerDetails').innerHTML = '';
+  $('resultTableWrap').innerHTML = '';
+  $('topThree').innerHTML = '';
+  $('winnerBig').innerHTML = '🏆 WINNER';
+  $('roundNum').textContent = '1';
+  $('animalEmoji').textContent = '🐦';
+  $('animalText').textContent = 'चिड़िया उड़!';
+  $('promptText').textContent = 'अगर उड़ता है तो अपना बटन दबाओ! 👋';
+  updateTimerBar(1);
+
+  showScreen('setup');
+  renderNameInputs();
+}
+
+/* =========================================================
+   बटन बाइंडिंग (एक ही बार)
+   ========================================================= */
+$('startBtn').addEventListener('click', startGameFromSetup);
+$('rematchBtn').addEventListener('click', rematch);
+$('newGameBtn').addEventListener('click', newGame);
+$('quitBtn').addEventListener('click', () => {
+  cancelAnimationFrame(S.rafId);
+  clearTimeout(S.feedbackTimer);
+  S.rafId = 0; S.feedbackTimer = 0;
+  if('speechSynthesis' in window){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+  S.phase = 'idle';
+  newGame();
+});
+$('soundBtn').addEventListener('click', function(){
+  S.sound = !S.sound;
+  $('soundToggle').checked = S.sound;
+  this.classList.toggle('off', !S.sound);
+  this.textContent = S.sound ? '🔊' : '🔇';
+  if(S.sound) sfx('press');
+});
+
+/* =========================================================
+   इनिशियलाइज़
+   ========================================================= */
+renderNameInputs();
+</script>
 </body>
 </html>
