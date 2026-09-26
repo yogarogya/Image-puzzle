@@ -16,20 +16,16 @@ body{
   min-height:100vh;color:var(--ink);
   background:linear-gradient(180deg,#5fb3e8 0%,#9ed3f0 28%,#d9eec9 62%,#b6dd94 100%);
   background-attachment:fixed;
-  padding:12px;overflow-x:hidden;
+  padding:10px;overflow-x:hidden;
 }
-.sun{position:fixed;top:14px;right:20px;width:64px;height:64px;border-radius:50%;
+.sun{position:fixed;top:14px;right:20px;width:56px;height:56px;border-radius:50%;
   background:radial-gradient(circle,#fff3a0,#ffd93b 60%,#f7b500);
   box-shadow:0 0 40px 12px rgba(255,220,80,.55);z-index:0;pointer-events:none}
-.cloud{position:fixed;background:rgba(255,255,255,.75);border-radius:99px;z-index:0;pointer-events:none;
-  filter:blur(.3px)}
+.cloud{position:fixed;background:rgba(255,255,255,.75);border-radius:99px;z-index:0;pointer-events:none}
 .cloud:before,.cloud:after{content:'';position:absolute;background:inherit;border-radius:50%}
-.c1{width:110px;height:34px;top:60px;left:-140px;animation:drift 34s linear infinite}
-.c1:before{width:52px;height:52px;top:-22px;left:18px}
-.c1:after{width:38px;height:38px;top:-14px;left:60px}
-.c2{width:80px;height:26px;top:150px;left:-140px;animation:drift 48s linear infinite 6s;opacity:.7}
-.c2:before{width:40px;height:40px;top:-18px;left:12px}
-.c2:after{width:28px;height:28px;top:-10px;left:44px}
+.c1{width:100px;height:32px;top:60px;left:-140px;animation:drift 34s linear infinite}
+.c1:before{width:48px;height:48px;top:-20px;left:16px}
+.c1:after{width:34px;height:34px;top:-12px;left:56px}
 @keyframes drift{to{transform:translateX(calc(100vw + 220px))}}
 
 .screen{display:none;max-width:1020px;margin:0 auto;position:relative;z-index:2}
@@ -79,63 +75,157 @@ body{
 .statusBar{font-size:.85rem;font-weight:800;text-align:center;color:#5a3b1e;margin-top:8px;min-height:1.2em}
 
 /* ---------- GAME HUD ---------- */
-.hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;
-  background:rgba(255,253,247,.92);border:3px solid var(--wood);border-radius:16px;padding:9px 13px;
-  box-shadow:0 5px 0 rgba(139,90,43,.3);font-weight:900;font-size:.98rem}
-.hud .pill{background:#ffe9b8;border:2px solid #e0b45c;border-radius:99px;padding:5px 13px;white-space:nowrap}
+.hud{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:space-between;
+  background:rgba(255,253,247,.92);border:3px solid var(--wood);border-radius:14px;padding:7px 11px;
+  box-shadow:0 5px 0 rgba(139,90,43,.3);font-weight:900;font-size:.92rem}
+.hud .pill{background:#ffe9b8;border:2px solid #e0b45c;border-radius:99px;padding:4px 11px;white-space:nowrap}
 .hud .spacer{flex:1}
-.iconBtn{font:inherit;font-weight:900;font-size:.95rem;border:2.5px solid #d9c4a5;background:#fff;
-  border-radius:11px;padding:7px 12px;cursor:pointer;color:#7a5c3a;transition:.15s;touch-action:manipulation}
+.iconBtn{font:inherit;font-weight:900;font-size:.88rem;border:2.5px solid #d9c4a5;background:#fff;
+  border-radius:10px;padding:6px 10px;cursor:pointer;color:#7a5c3a;transition:.15s;touch-action:manipulation}
 .iconBtn:hover{background:#fff3d9}
 .iconBtn.off{opacity:.45;text-decoration:line-through}
-.timerWrap{height:20px;background:rgba(0,0,0,.18);border-radius:99px;overflow:hidden;margin-top:10px;
+.timerWrap{height:16px;background:rgba(0,0,0,.18);border-radius:99px;overflow:hidden;margin-top:8px;
   border:2.5px solid rgba(255,255,255,.85);box-shadow:0 3px 0 rgba(0,0,0,.12)}
 #timerBar{height:100%;width:100%;border-radius:99px;transition:width .06s linear;
   background:linear-gradient(90deg,#27ae60,#2ecc71)}
 
-/* ---------- STAGE ---------- */
-.stage{background:rgba(255,253,247,.94);border:4px solid var(--wood);border-radius:24px;padding:18px 16px;
-  text-align:center;margin-top:10px;box-shadow:0 8px 0 rgba(139,90,43,.35),inset 0 0 44px rgba(255,220,150,.45);
-  position:relative;overflow:hidden}
-#animalEmoji{font-size:clamp(3.6rem,14vw,5.6rem);line-height:1;display:block}
-#animalEmoji.pop{animation:pop .4s ease-out}
-#animalText{font-size:clamp(1.5rem,6.5vw,2.5rem);font-weight:900;color:#8b4513;margin-top:6px;
-  text-shadow:2px 2px 0 #ffe0a3}
-#promptText{font-size:.94rem;font-weight:800;color:#8a6a48;margin-top:7px}
-.answerBanner{margin-top:10px;padding:12px 16px;border-radius:14px;font-weight:900;font-size:clamp(.9rem,3.4vw,1.08rem);
-  text-align:center;opacity:0;transform:translateY(-10px);transition:.25s;pointer-events:none}
-.answerBanner.show{opacity:1;transform:translateY(0)}
-.answerBanner.correct{background:#d6f8d6;color:#14651b;border:2.5px solid var(--green)}
-.answerBanner.wrong{background:#ffe1e1;color:#8b1a1a;border:2.5px solid var(--red)}
+/* =========================================================
+   ⭐ सर्कल लेआउट — खिलाड़ी चारों ओर
+   ========================================================= */
+.circleWrap{
+  position: relative;
+  width: 100%;
+  max-width: min(94vw, 74vh, 720px);
+  aspect-ratio: 1 / 1;
+  margin: 10px auto 0;
+  /* थोड़ी सी जगह किनारे पर बटन के लिए */
+  padding: 6px;
+}
 
-/* ---------- PLAYER GRID ---------- */
-.playersGrid{display:grid;gap:10px;margin-top:12px;
-  grid-template-columns:repeat(auto-fit,minmax(148px,1fr))}
-.pcard{background:var(--cream);border:3px solid var(--pc);border-radius:18px;padding:10px;
-  box-shadow:0 5px 0 rgba(0,0,0,.16);transition:transform .15s,box-shadow .2s;display:flex;
-  flex-direction:column;gap:8px;position:relative}
-.pcard.did-press{transform:scale(.975)}
-.pcard.did-lock{opacity:.5}
-.phead{display:flex;align-items:center;gap:7px;font-weight:900;font-size:.97rem;min-width:0}
-.phead .pemoji{font-size:1.25rem;flex:0 0 auto}
-.phead .pname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pbtn{font:inherit;font-weight:900;font-size:1.02rem;padding:15px 8px;border:none;border-radius:13px;
-  background:var(--pc);color:#fff;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.3);transition:.08s;
-  touch-action:manipulation;letter-spacing:.3px}
-.pbtn:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.3)}
-.pbtn:disabled{cursor:default;box-shadow:none}
-.pbtn.pressed{background:var(--green)!important}
-.pbtn.locked{background:#95a5a6!important;font-size:.9rem}
-.pbtn.pbtn-wrong{background:#e74c3c!important;color:#fff!important;
-  box-shadow:0 5px 0 rgba(0,0,0,.3)!important;cursor:pointer}
-.pbtn.pbtn-wrong:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.3)!important}
-.pfoot{display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:.95rem}
-.pscore{background:#ffe9b8;border:2px solid #e0b45c;border-radius:99px;padding:2px 12px}
-.pdelta{font-size:1.05rem;font-weight:900}
-.pdelta.plus{color:#1e8e3e}.pdelta.minus{color:#c0392b}
-.pcard.fb-correct{box-shadow:0 0 0 4px var(--green),0 5px 0 rgba(0,0,0,.16)}
-.pcard.fb-wrong{box-shadow:0 0 0 4px var(--red),0 5px 0 rgba(0,0,0,.16);animation:shake .4s}
-.pcard.fb-miss{opacity:.72}
+/* बीच का स्टेज (जानवर) */
+.stageCircle{
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%,-50%);
+  width: 46%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, #fffdf2 0%, #ffe9b8 70%, #f5d68a 100%);
+  border: 4px solid var(--wood);
+  box-shadow: 0 8px 0 rgba(139,90,43,.35), inset 0 0 40px rgba(255,220,150,.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5%;
+  text-align: center;
+  z-index: 1;
+  overflow: hidden;
+}
+#animalEmoji{font-size: clamp(2.6rem, 10vmin, 5rem); line-height: 1; display: block}
+#animalEmoji.pop{animation: pop .4s ease-out}
+#animalText{font-size: clamp(1rem, 3.6vmin, 1.9rem); font-weight: 900; color: #8b4513;
+  margin-top: 4px; text-shadow: 2px 2px 0 #ffe0a3; line-height: 1.15}
+#promptText{font-size: clamp(.66rem, 1.8vmin, .92rem); font-weight: 800; color: #8a6a48;
+  margin-top: 5px; line-height: 1.25}
+
+/* खिलाड़ियों की रिंग */
+#playersRing{
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;   /* सिर्फ बटन क्लिक हो */
+}
+
+/* एक खिलाड़ी का कार्ड */
+.pcard{
+  position: absolute;
+  width: clamp(86px, 22%, 165px);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  background: var(--cream);
+  border: 3px solid var(--pc);
+  border-radius: 14px;
+  padding: 6px;
+  box-shadow: 0 5px 0 rgba(0,0,0,.20);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: box-shadow .2s, scale .15s;
+  transform-origin: center;
+}
+.pcard.did-press{scale: .96}
+.pcard.did-lock{opacity: .55}
+
+.phead{
+  display: flex; align-items: center; gap: 4px;
+  font-weight: 900; font-size: clamp(.72rem, 1.7vmin, .92rem);
+  min-width: 0;
+}
+.phead .pemoji{font-size: clamp(.9rem, 2.1vmin, 1.15rem); flex: 0 0 auto}
+.phead .pname{overflow: hidden; text-overflow: ellipsis; white-space: nowrap}
+
+.pbtn{
+  font: inherit; font-weight: 900;
+  font-size: clamp(.78rem, 1.9vmin, 1.02rem);
+  padding: clamp(9px, 1.9vmin, 14px) 4px;
+  border: none; border-radius: 10px;
+  background: var(--pc); color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0,0,0,.30);
+  transition: .08s;
+  touch-action: manipulation;
+  letter-spacing: .2px;
+  white-space: nowrap;
+}
+.pbtn:active:not(:disabled){transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.30)}
+.pbtn:disabled{cursor: default; box-shadow: none}
+.pbtn.pressed{background: var(--green) !important}
+.pbtn.locked{background: #95a5a6 !important; font-size: clamp(.65rem,1.5vmin,.82rem)}
+.pbtn.pbtn-wrong{background: #e74c3c !important; color: #fff !important;
+  box-shadow: 0 4px 0 rgba(0,0,0,.30) !important; cursor: pointer}
+.pbtn.pbtn-wrong:active{transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.30) !important}
+
+.pfoot{
+  display: flex; justify-content: space-between; align-items: center;
+  font-weight: 900; font-size: clamp(.72rem, 1.7vmin, .92rem);
+}
+.pscore{
+  background: #ffe9b8; border: 2px solid #e0b45c;
+  border-radius: 99px; padding: 1px 8px;
+  font-size: clamp(.68rem, 1.6vmin, .88rem);
+}
+.pdelta{font-size: clamp(.78rem, 1.8vmin, 1rem); font-weight: 900}
+
+.pdelta.plus{color:#1e8e3e}
+.pdelta.minus{color:#c0392b}
+
+.pcard.fb-correct{box-shadow: 0 0 0 4px var(--green), 0 5px 0 rgba(0,0,0,.20)}
+.pcard.fb-wrong{box-shadow: 0 0 0 4px var(--red), 0 5px 0 rgba(0,0,0,.20); animation: shake .4s}
+.pcard.fb-miss{opacity: .72}
+
+/* ---------- ANSWER BANNER (fixed bottom) ---------- */
+.answerBanner{
+  position: fixed;
+  left: 12px; right: 12px;
+  bottom: 12px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 11px 16px;
+  border-radius: 14px;
+  font-weight: 900;
+  font-size: clamp(.88rem, 3.2vw, 1.05rem);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: .25s;
+  pointer-events: none;
+  z-index: 40;
+  box-shadow: 0 6px 20px rgba(0,0,0,.2);
+}
+.answerBanner.show{opacity: 1; transform: translateY(0)}
+.answerBanner.correct{background: #d6f8d6; color: #14651b; border: 2.5px solid var(--green)}
+.answerBanner.wrong{background: #ffe1e1; color: #8b1a1a; border: 2.5px solid var(--red)}
 
 /* ---------- RESULT ---------- */
 .winnerBig{text-align:center;font-size:clamp(1.7rem,7vw,3rem);font-weight:900;color:#fff;
@@ -181,9 +271,10 @@ body{
 .actionRow .bigBtn{flex:1;min-width:150px;font-size:1.15rem;padding:16px}
 .bigBtn.alt{background:linear-gradient(180deg,#63c8f0,#2196c9);box-shadow:0 7px 0 #136b91}
 .bigBtn.alt:active{box-shadow:0 2px 0 #136b91}
-@media(max-width:420px){
-  .playersGrid{grid-template-columns:repeat(2,1fr);gap:8px}
-  .pbtn{font-size:.92rem;padding:13px 5px}
+
+@media(max-width:480px){
+  .circleWrap{max-width:min(96vw, 68vh, 500px)}
+  .pcard{width: clamp(78px, 24%, 120px); padding: 4px; gap: 3px}
   .dgrid{grid-template-columns:repeat(2,1fr)}
 }
 </style>
@@ -191,7 +282,6 @@ body{
 <body>
 <div class="sun"></div>
 <div class="cloud c1"></div>
-<div class="cloud c2"></div>
 
 <!-- ================= SETUP SCREEN ================= -->
 <section id="setupScreen" class="screen active">
@@ -200,12 +290,11 @@ body{
 
   <div class="helpBox">
     <b>कैसे खेलें?</b><br>
-    1️⃣ स्क्रीन पर जानवर का नाम और <b>“उड़!”</b> दिखेगा।<br>
+    1️⃣ स्क्रीन के बीच में जानवर का नाम और <b>“उड़!”</b> दिखेगा।<br>
     2️⃣ अगर वो <b>उड़ता है</b> → जल्दी से अपना बटन दबाओ 👋<br>
     3️⃣ अगर <b>नहीं उड़ता</b> → बटन मत दबाओ!<br>
-    4️⃣ अगर पक्षी उड़ता है और तुमने सही दबाया — बाकी खिलाड़ियों का बटन उस राउंड में बंद हो जाएगा।<br>
-    5️⃣ गलत दबाने पर सिर्फ तुम्हें −5 मिलेगा — बटन बंद नहीं होगा और बाकी खिलाड़ी भी दबा सकेंगे।<br>
-    6️⃣ सही जवाब <b>+10</b> • गलत जवाब <b>−5</b>
+    4️⃣ गोल घेरे में चारों ओर बैठो — हर खिलाड़ी का बटन उसकी तरफ।<br>
+    5️⃣ सही जवाब <b>+10</b> • गलत जवाब <b>−5</b>
   </div>
 
   <div class="card">
@@ -273,17 +362,18 @@ body{
 
   <div class="timerWrap"><div id="timerBar"></div></div>
 
-  <div class="stage">
-    <span id="animalEmoji">🐦</span>
-    <div id="animalText">चिड़िया उड़!</div>
-    <div id="promptText">अगर उड़ता है तो अपना बटन दबाओ! 👋</div>
+  <!-- ⭐ सर्कल एरिया : बीच में जानवर, चारों ओर खिलाड़ी -->
+  <div class="circleWrap" id="circleWrap">
+    <div class="stageCircle" id="stageCircle">
+      <span id="animalEmoji">🐦</span>
+      <div id="animalText">चिड़िया उड़!</div>
+      <div id="promptText">अगर उड़ता है तो अपना बटन दबाओ! 👋</div>
+    </div>
+    <div id="playersRing"></div>
   </div>
-
-  <div id="answerBanner" class="answerBanner"></div>
-
-  <div id="playersGrid" class="playersGrid"></div>
-  <div style="height:18px"></div>
 </section>
+
+<div id="answerBanner" class="answerBanner"></div>
 
 <!-- ================= RESULT SCREEN ================= -->
 <section id="resultScreen" class="screen">
@@ -398,11 +488,10 @@ function shuffle(a){
 }
 
 /* =========================================================
-   ⭐ ऑडियो इंजन — GitHub Pages (HTTPS) के लिए मज़बूत
+   ऑडियो इंजन
    ========================================================= */
 let actx = null;
 let audioUnlocked = false;
-let voicesReady = false;
 let cachedVoices = [];
 
 function audio(){
@@ -416,9 +505,7 @@ function audio(){
   return actx;
 }
 
-/* यह function पहली user gesture पर call होता है — इससे browsers audio unlock कर देते हैं */
 function unlockAudio(){
-  // --- WebAudio unlock ---
   const c = audio();
   if(c){
     if(c.state === 'suspended'){ c.resume().catch(()=>{}); }
@@ -433,7 +520,6 @@ function unlockAudio(){
       }catch(e){}
     }
   }
-  // --- Speech unlock (silent utterance) ---
   if('speechSynthesis' in window){
     try{
       const u = new SpeechSynthesisUtterance(' ');
@@ -444,21 +530,16 @@ function unlockAudio(){
   updateAudioStatus();
 }
 
-/* voices load होने का इंतज़ार */
 function loadVoices(){
   if(!('speechSynthesis' in window)) return;
   try{
     const v = window.speechSynthesis.getVoices();
-    if(v && v.length > 0){
-      cachedVoices = v;
-      voicesReady = true;
-    }
+    if(v && v.length > 0) cachedVoices = v;
   }catch(e){}
 }
 if('speechSynthesis' in window){
   loadVoices();
   window.speechSynthesis.onvoiceschanged = loadVoices;
-  // कुछ browsers में देरी से लोड होते हैं — थोड़ी देर में फिर try करें
   setTimeout(loadVoices, 500);
   setTimeout(loadVoices, 1500);
 }
@@ -490,12 +571,10 @@ function updateAudioStatus(){
   el.textContent = msg;
 }
 
-/* पहली किसी भी click/touch/key पर audio unlock */
 ['click','touchstart','keydown','pointerdown'].forEach(evt => {
-  window.addEventListener(evt, unlockAudio, {once:false, passive:true});
+  window.addEventListener(evt, unlockAudio, {passive:true});
 });
 
-/* --- टोन बनाने वाला function --- */
 function tone(freq, dur, type, vol, delay){
   if(!S.sound) return;
   const c = audio(); if(!c) return;
@@ -528,7 +607,6 @@ function sfx(name){
   }
 }
 
-/* --- आवाज़ (उद्घोषक) --- */
 function speak(text){
   if(!S.voice) return;
   if(!('speechSynthesis' in window)) return;
@@ -555,7 +633,7 @@ function showScreen(name){
 }
 
 /* =========================================================
-   सेटअप स्क्रीन — नाम इनपुट
+   सेटअप — नाम इनपुट
    ========================================================= */
 function renderNameInputs(){
   const wrap = $('nameInputs');
@@ -587,7 +665,6 @@ function renderNameInputs(){
   }
 }
 
-/* चिप बटन */
 $('playerCountBtns').addEventListener('click', e => {
   const b = e.target.closest('.chip'); if(!b) return;
   $('playerCountBtns').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
@@ -616,7 +693,6 @@ $('nameInputs').addEventListener('keydown', e => {
   if(e.key === 'Enter'){ e.preventDefault(); startGameFromSetup(); }
 });
 
-/* टेस्ट बटन */
 $('testSoundBtn').addEventListener('click', () => {
   unlockAudio();
   const prev = S.sound; S.sound = true;
@@ -635,8 +711,7 @@ $('testVoiceBtn').addEventListener('click', () => {
    गेम शुरू
    ========================================================= */
 function startGameFromSetup(){
-  unlockAudio();   // user gesture पर audio unlock
-
+  unlockAudio();
   const inputs = Array.from($('nameInputs').querySelectorAll('input'));
   S.players = [];
   for(let i = 0; i < S.playerCount; i++){
@@ -659,7 +734,6 @@ function startGameFromSetup(){
 
   $('roundTotal').textContent = S.totalRounds;
   $('speedLabel').textContent = SPEEDS[S.speed].label;
-  $('answerBanner').classList.remove('show');
 
   showScreen('game');
   startRound();
@@ -681,21 +755,33 @@ function nextAnimal(){
   return a;
 }
 
-function buildPlayersGrid(){
-  const grid = $('playersGrid');
-  grid.innerHTML = '';
-  S.players.forEach(p => {
+/* ⭐ सर्कल में खिलाड़ी बनाना */
+function buildPlayersRing(){
+  const ring = $('playersRing');
+  ring.innerHTML = '';
+  const n = S.players.length;
+  const radiusPct = 37;   // कंटेनर के आकार का 37% रेडियस
+
+  S.players.forEach((p, i) => {
+    // पहला खिलाड़ी हमेशा ऊपर (top) पर
+    const angleDeg = -90 + (360 / n) * i;
+    const rad = angleDeg * Math.PI / 180;
+    const xPct = 50 + radiusPct * Math.cos(rad);
+    const yPct = 50 + radiusPct * Math.sin(rad);
+
     const card = document.createElement('div');
     card.className = 'pcard';
     card.id = 'pcard-' + p.id;
     card.style.setProperty('--pc', p.color);
+    card.style.left = xPct + '%';
+    card.style.top = yPct + '%';
     card.innerHTML =
       '<div class="phead"><span class="pemoji">' + p.emoji + '</span>' +
       '<span class="pname">' + escapeHtml(p.name) + '</span></div>' +
-      '<button class="pbtn" data-pid="' + p.id + '">दबाओ! 👋</button>' +
+      '<button class="pbtn" data-pid="' + p.id + '">दबाओ!</button>' +
       '<div class="pfoot"><span class="pscore">' + p.score + '</span>' +
       '<span class="pdelta"></span></div>';
-    grid.appendChild(card);
+    ring.appendChild(card);
   });
 }
 
@@ -713,10 +799,10 @@ function startRound(){
   void $('animalEmoji').offsetWidth;
   $('animalEmoji').classList.add('pop');
   $('animalText').textContent = S.animal.n + ' उड़!';
-  $('promptText').textContent = 'अगर उड़ता है तो अपना बटन दबाओ! 👋';
+  $('promptText').textContent = 'उड़ता है तो बटन दबाओ! 👋';
   $('answerBanner').classList.remove('show');
 
-  buildPlayersGrid();
+  buildPlayersRing();
   updateTimerBar(1);
   sfx('start');
   speak(S.animal.n + ' उड़!');
@@ -756,8 +842,6 @@ function tick(now){
 
 /* =========================================================
    बटन दबाने का लॉजिक
-   • पक्षी उड़ता है → सही दबा → बटन disable, आखिरी बचा lock
-   • पक्षी नहीं उड़ता → गलत दबा → बटन ENABLED रहेगा
    ========================================================= */
 function onPress(pid){
   if(S.phase !== 'playing') return;
@@ -776,17 +860,15 @@ function onPress(pid){
     const btn = card.querySelector('.pbtn');
     if(flies){
       btn.classList.add('pressed');
-      btn.textContent = '✓ दबा दिया';
+      btn.textContent = '✓ दबाया';
       btn.disabled = true;
     } else {
-      btn.textContent = '✗ गलत दबाया';
+      btn.textContent = '✗ गलत';
       btn.classList.add('pbtn-wrong');
-      // ध्यान दें: disabled = true कभी नहीं
     }
     card.classList.add('did-press');
   }
 
-  // सिर्फ पक्षी उड़ता हो और सही दबाया हो तब बाकी lock करो
   if(flies){
     const remaining = S.players.filter(x => !S.pressed.has(x.id));
     if(remaining.length <= 1){
@@ -797,7 +879,7 @@ function onPress(pid){
         if(c){
           const b = c.querySelector('.pbtn');
           b.classList.add('locked');
-          b.textContent = '⏳ अगला चांस';
+          b.textContent = '⏳ अगला';
           b.disabled = true;
           c.classList.add('did-lock');
         }
@@ -807,7 +889,7 @@ function onPress(pid){
   }
 }
 
-$('playersGrid').addEventListener('click', e => {
+$('playersRing').addEventListener('click', e => {
   const btn = e.target.closest('.pbtn');
   if(!btn) return;
   onPress(Number(btn.dataset.pid));
@@ -823,7 +905,7 @@ document.addEventListener('keydown', e => {
 });
 
 /* =========================================================
-   राउंड समाप्त + स्कोरिंग
+   राउंड समाप्त
    ========================================================= */
 function endRound(){
   if(S.phase !== 'playing') return;
@@ -863,10 +945,10 @@ function endRound(){
   const banner = $('answerBanner');
   if(flies){
     banner.className = 'answerBanner correct show';
-    banner.innerHTML = '✅ ' + S.animal.e + ' <b>' + S.animal.n + '</b> उड़ती है! — सही जवाब: बटन दबाना था';
+    banner.innerHTML = '✅ ' + S.animal.e + ' <b>' + S.animal.n + '</b> उड़ती है! — बटन दबाना था';
   } else {
     banner.className = 'answerBanner wrong show';
-    banner.innerHTML = '❌ ' + S.animal.e + ' <b>' + S.animal.n + '</b> नहीं उड़ती! — सही जवाब: बटन नहीं दबाना था';
+    banner.innerHTML = '❌ ' + S.animal.e + ' <b>' + S.animal.n + '</b> नहीं उड़ती! — बटन नहीं दबाना था';
   }
 
   if(anyWrong) sfx('wrong');
@@ -985,8 +1067,7 @@ function rematch(){
   $('roundTotal').textContent = S.totalRounds;
   $('speedLabel').textContent = SPEEDS[S.speed].label;
   $('answerBanner').classList.remove('show');
-  $('answerBanner').className = 'answerBanner';
-  $('playersGrid').innerHTML = '';
+  $('playersRing').innerHTML = '';
   updateTimerBar(1);
 
   showScreen('game');
@@ -1013,9 +1094,8 @@ function newGame(){
   S.startTime = 0;
   S.lastSec = -1;
 
-  $('playersGrid').innerHTML = '';
+  $('playersRing').innerHTML = '';
   $('answerBanner').classList.remove('show');
-  $('answerBanner').className = 'answerBanner';
   $('playerDetails').innerHTML = '';
   $('resultTableWrap').innerHTML = '';
   $('topThree').innerHTML = '';
@@ -1023,7 +1103,7 @@ function newGame(){
   $('roundNum').textContent = '1';
   $('animalEmoji').textContent = '🐦';
   $('animalText').textContent = 'चिड़िया उड़!';
-  $('promptText').textContent = 'अगर उड़ता है तो अपना बटन दबाओ! 👋';
+  $('promptText').textContent = 'उड़ता है तो बटन दबाओ! 👋';
   updateTimerBar(1);
 
   showScreen('setup');
@@ -1050,6 +1130,37 @@ $('soundBtn').addEventListener('click', function(){
   this.classList.toggle('off', !S.sound);
   this.textContent = S.sound ? '🔊' : '🔇';
   if(S.sound) sfx('press');
+});
+
+/* window resize पर रिंग फिर बनाएँ — कार्ड्स अपनी जगह सही रहें */
+window.addEventListener('resize', () => {
+  if(S.phase === 'playing' || S.phase === 'evaluating'){
+    buildPlayersRing();
+    // मौजूदा फीडबैक क्लासेस फिर लगा दें
+    S.players.forEach(p => {
+      const card = $('pcard-' + p.id);
+      if(!card) return;
+      if(S.pressed.has(p.id)){
+        const btn = card.querySelector('.pbtn');
+        if(S.animal && S.animal.f){
+          btn.classList.add('pressed');
+          btn.textContent = '✓ दबाया';
+          btn.disabled = true;
+        } else {
+          btn.classList.add('pbtn-wrong');
+          btn.textContent = '✗ गलत';
+        }
+        card.classList.add('did-press');
+      }
+      if(S.lockedOut === p.id){
+        const btn = card.querySelector('.pbtn');
+        btn.classList.add('locked');
+        btn.textContent = '⏳ अगला';
+        btn.disabled = true;
+        card.classList.add('did-lock');
+      }
+    });
+  }
 });
 
 /* =========================================================
